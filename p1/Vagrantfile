@@ -1,0 +1,29 @@
+Vagrant.configure(2) do |config|
+  [...]
+  config.vm.box = "generic/centos9s"
+  config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos9s/versions/4.0.4/providers/libvirt.box"
+  config.vm.define "hpottierS" do |control|
+    control.vm.hostname = "hpottierS"
+    control.vm.network REDACTED, ip: "192.168.42.110"
+    control.vm.provider REDACTED do |v|
+      v.customize ["modifyvm", :id, "--name", "hpottierS"]
+      [...]
+    end
+    config.vm.provision :shell, :inline => SHELL
+    [...]
+    SHELL
+    control.vm.provision "shell", path: REDACTED
+  end
+  config.vm.define "hpottierSW" do |control|
+    control.vm.hostname = "hpottierSW"
+    control.vm.network REDACTED, ip: "192.168.42.111"
+    control.vm.provider REDACTED do |v|
+      v.customize ["modifyvm", :id, "--name", "hpottierSW"]
+      [...]
+    end
+    config.vm.provision "shell", inline: <<-SHELL
+[..]
+SHELL
+    control.vm.provision "shell", path: REDACTED
+  end
+end
