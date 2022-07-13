@@ -1,8 +1,8 @@
 Vagrant.configure(2) do |config|
   #Configure box
-  config.vm.box = "generic/centos9s"
-  config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos9s/versions/4.0.4/providers/libvirt.box"
-  config.vm.provision "shell", inline: "systemctl disable --now firewalld"
+  config.vm.box = "generic/centos8s"
+  config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos8s/versions/4.0.4/providers/libvirt.box"
+  config.vm.provision "shell", privileged: true, inline: "systemctl disable firewalld --now"
 
   #Configure Server
   config.vm.define "hpottierS" do |control|
@@ -11,14 +11,16 @@ Vagrant.configure(2) do |config|
     control.vm.provider "libvirt" do |v|
       v.memory = 512
       v.cpus = 1
-    # control.vm.provider "virtualbox" do |v|
-    #   v.customize ["modifyvm", :id, "--name", "hpottierS"]
-    #   v.memory = 512
-    #   v.cpus = 1
     end
 
-    # Execute shell commands to configure server
-    config.vm.provision "shell", privileged: true, inline: "curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644"
+    #Execute shell commands to configure server
+    control.vm.provision "shell", inline: <<-SHELL
+                         curl -sfL https://get.k3s.io |
+                              sh -s - --write-kubeconfig-mode 644 \
+                                      --node-ip 192.168.42.110 \
+                                      --bind-address=192.168.42.110 \
+                                      --advertise-address=192.168.42.110
+                         SHELL
   end
 
   #Configure Worker
@@ -28,14 +30,18 @@ Vagrant.configure(2) do |config|
     control.vm.provider "libvirt" do |v|
       v.memory = 512
       v.cpus = 1
-    # control.vm.provider "virtualbox" do |v|
-    #   v.customize ["modifyvm", :id, "--name", "hpottierSW"]
-    #   v.memory = 512
-    #   v.cpus = 1
     end
 
-    # Execute shell commands to configure worker
-    config.vm.provision "shell", privileged: true, inline: "curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644"
+    #Execute shell commands to configure worker
+    control.vm.provision "shell", inline: <<-SHELL
+                         curl -sfL https://get.k3s.io |
+                              sh -s - --write-kubeconfig-mode 644 \
+                                      --node-ip 192.168.42.111 \
+                                      --bind-address=192.168.42.111 \
+                                      --advertise-address=192.168.42.111
+                         SHELL
   end
 
 end
+
+# --flannel-iface=eth1 ==> to communicate between nodes
