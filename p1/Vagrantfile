@@ -19,7 +19,8 @@ Vagrant.configure(2) do |config|
                               sh -s - --write-kubeconfig-mode 644 \
                                       --node-ip 192.168.42.110 \
                                       --bind-address=192.168.42.110 \
-                                      --advertise-address=192.168.42.110
+                                      --advertise-address=192.168.42.110 \
+                                      --flannel-iface=eth1
                          SHELL
   end
 
@@ -38,10 +39,12 @@ Vagrant.configure(2) do |config|
                               sh -s - --write-kubeconfig-mode 644 \
                                       --node-ip 192.168.42.111 \
                                       --bind-address=192.168.42.111 \
-                                      --advertise-address=192.168.42.111
+                                      --advertise-address=192.168.42.111 \
+                                      --flannel-iface=eth1 \
+                                      --server "https://192.168.52.110:6443"
                          SHELL
   end
 
 end
 
-# --flannel-iface=eth1 ==> to communicate between nodes
+#Need to add token to the worker.
