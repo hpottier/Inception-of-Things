@@ -1,7 +1,7 @@
 Vagrant.configure(2) do |config|
   #Configure box
   config.vm.box = "generic/centos8s"
-  config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos8s/versions/4.0.4/providers/libvirt.box"
+  config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos8s/versions/4.1.0/providers/virtualbox.box"
   config.vm.synced_folder ".", "/vagrant"
   config.vm.provision "shell", privileged: true, inline: "systemctl disable firewalld --now"
 
@@ -9,8 +9,9 @@ Vagrant.configure(2) do |config|
   config.vm.define "hpottierS" do |control|
     control.vm.hostname = "hpottierS"
     control.vm.network "private_network", ip: "192.168.42.110"
-    control.vm.provider "libvirt" do |v|
-      v.memory = 512
+    control.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--name", "hpottierS"]
+      v.memory = 1024
       v.cpus = 1
     end
 
@@ -31,24 +32,21 @@ Vagrant.configure(2) do |config|
   config.vm.define "hpottierSW" do |control|
     control.vm.hostname = "hpottierSW"
     control.vm.network "private_network", ip: "192.168.42.111"
-    control.vm.provider "libvirt" do |v|
-      v.memory = 512
+    control.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--name", "hpottierSW"]
+      v.memory = 1024
       v.cpus = 1
     end
 
     #Execute shell commands to configure worker
     control.vm.provision "shell", inline: <<-SHELL
                          curl -sfL https://get.k3s.io |
-                              sh -s - --write-kubeconfig-mode 644 \
+                              sh -s - agent \
                                       --node-ip 192.168.42.111 \
-                                      --bind-address=192.168.42.111 \
-                                      --advertise-address=192.168.42.111 \
                                       --flannel-iface=eth1 \
                                       --server "https://192.168.42.110:6443" \
                                       --token-file /vagrant/node-token
                          SHELL
   end
-  
-end
 
-# 400 Bad Request from the server to the worker
+end
