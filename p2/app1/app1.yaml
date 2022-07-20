@@ -1,0 +1,75 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    app1.yaml                                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: hpottier <hpottier@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/07/20 17:46:32 by hpottier          #+#    #+#              #
+#    Updated: 2022/07/20 17:46:33 by hpottier         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-one
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: app-one-app
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-one-deployment
+  labels:
+    app: app-one-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-one-app
+  template:
+    metadata:
+      labels:
+        app: app-one-app
+    spec:
+      containers:
+      - name: app-one
+        image: nginx:1.23.1
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+          - name: app-one-volume
+            mountPath: /usr/share/nginx/html
+      volumes:
+        - name: app-one-volume
+          configMap:
+            name: app-one-configmap
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-one-ingress
+spec:
+  rules:
+  - host: app1.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-one
+            port:
+              number: 80

@@ -1,0 +1,75 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    app2.yaml                                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: hpottier <hpottier@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/07/20 17:10:24 by hpottier          #+#    #+#              #
+#    Updated: 2022/07/20 17:46:44 by hpottier         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-two
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: app-two-app
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-two-deployment
+  labels:
+    app: app-two-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-two-app
+  template:
+    metadata:
+      labels:
+        app: app-two-app
+    spec:
+      containers:
+      - name: app-two
+        image: nginx:1.23.1
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+          - name: app-two-volume
+            mountPath: /usr/share/nginx/html
+      volumes:
+        - name: app-two-volume
+          configMap:
+            name: app-two-configmap
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-two-ingress
+spec:
+  rules:
+  - host: app2.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-two
+            port:
+              number: 80
