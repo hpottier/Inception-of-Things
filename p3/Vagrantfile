@@ -6,39 +6,32 @@
 #    By: hpottier <hpottier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/20 17:10:29 by hpottier          #+#    #+#              #
-#    Updated: 2022/07/21 16:06:00 by hpottier         ###   ########.fr        #
+#    Updated: 2022/07/21 16:11:17 by hpottier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 Vagrant.configure(2) do |config|
-	#Configure box
 	config.vm.box = "generic/centos8s"
 	config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos8s/versions/4.1.0/providers/virtualbox.box"
 	config.vm.synced_folder ".", "/vagrant"
 	config.vm.provision "shell", privileged: true, inline: "systemctl disable firewalld --now"
 
-	#Configure Server
-	config.vm.define "hpottierS" do |control|
-		control.vm.hostname = "hpottierS"
+	config.vm.define "part3vm" do |control|
+		control.vm.hostname = "part3vm"
 		control.vm.network "private_network", ip: "192.168.42.110"
 		control.vm.provider "virtualbox" do |v|
-			v.customize ["modifyvm", :id, "--name", "hpottierS"]
-			v.memory = 4096
+			v.customize ["modifyvm", :id, "--name", "part3vm"]
+			v.memory = 8192
 			v.cpus = 2
 		end
-
-		#Execute shell commands to configure server
-		control.vm.provision "shell", inline: <<-SHELL
-			curl -sfL https://get.k3s.io |
-			sh -s - --write-kubeconfig-mode 644 \
-					--node-ip 192.168.42.110 \
-					--flannel-iface=eth1
-			/usr/local/bin/k3s kubectl create configmap app-one-configmap --from-file=/vagrant/app1/index.html
-			/usr/local/bin/k3s kubectl apply -f /vagrant/app1/app1.yaml
-			/usr/local/bin/k3s kubectl create configmap app-two-configmap --from-file=/vagrant/app2/index.html
-			/usr/local/bin/k3s kubectl apply -f /vagrant/app2/app2.yaml
-			/usr/local/bin/k3s kubectl create configmap app-three-configmap --from-file=/vagrant/app3/index.html
-			/usr/local/bin/k3s kubectl apply -f /vagrant/app3/app3.yaml
+		control.vm.provision "shell", inline: <<~SHELL
+			sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+			sudo yum makecache
+			sudo yum install -y docker-ce docker-ce-cli containerd.io
+			sudo systemctl enable --now docker
+			/vagrant/kubectlInstall.sh
+			sudo yum install -y kubectl
+			curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 			SHELL
 	end
 end

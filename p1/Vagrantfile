@@ -6,58 +6,58 @@
 #    By: hpottier <hpottier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/20 17:10:37 by hpottier          #+#    #+#              #
-#    Updated: 2022/07/20 17:22:27 by hpottier         ###   ########.fr        #
+#    Updated: 2022/07/21 15:27:21 by hpottier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 Vagrant.configure(2) do |config|
-  #Configure box
-  config.vm.box = "generic/centos8s"
-  config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos8s/versions/4.1.0/providers/virtualbox.box"
-  config.vm.synced_folder ".", "/vagrant"
-  config.vm.provision "shell", privileged: true, inline: "systemctl disable firewalld --now"
+	#Configure box
+	config.vm.box = "generic/centos8s"
+	config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos8s/versions/4.1.0/providers/virtualbox.box"
+	config.vm.synced_folder ".", "/vagrant"
+	config.vm.provision "shell", privileged: true, inline: "systemctl disable firewalld --now"
 
-  #Configure Server
-  config.vm.define "hpottierS" do |control|
-    control.vm.hostname = "hpottierS"
-    control.vm.network "private_network", ip: "192.168.42.110"
-    control.vm.provider "virtualbox" do |v|
-      v.customize ["modifyvm", :id, "--name", "hpottierS"]
-      v.memory = 1024
-      v.cpus = 1
-    end
+	#Configure Server
+	config.vm.define "hpottierS" do |control|
+		control.vm.hostname = "hpottierS"
+		control.vm.network "private_network", ip: "192.168.42.110"
+		control.vm.provider "virtualbox" do |v|
+			v.customize ["modifyvm", :id, "--name", "hpottierS"]
+			v.memory = 1024
+			v.cpus = 1
+		end
 
-    #Execute shell commands to configure server
-    control.vm.provision "shell", inline: <<-SHELL
-                         curl -sfL https://get.k3s.io |
-                              sh -s - --write-kubeconfig-mode 644 \
-                                      --node-ip 192.168.42.110 \
-                                      --bind-address=192.168.42.110 \
-                                      --advertise-address=192.168.42.110 \
-                                      --flannel-iface=eth1
-                         sudo cp /var/lib/rancher/k3s/server/node-token /vagrant/.
-                         sudo chmod +r /vagrant/node-token
-                         SHELL
-  end
+		#Execute shell commands to configure server
+		control.vm.provision "shell", inline: <<-SHELL
+			curl -sfL https://get.k3s.io |
+			sh -s - --write-kubeconfig-mode 644 \
+					--node-ip 192.168.42.110 \
+					--bind-address=192.168.42.110 \
+					--advertise-address=192.168.42.110 \
+					--flannel-iface=eth1
+			sudo cp /var/lib/rancher/k3s/server/node-token /vagrant/.
+			sudo chmod +r /vagrant/node-token
+			SHELL
+	end
 
-  #Configure Worker
-  config.vm.define "hpottierSW" do |control|
-    control.vm.hostname = "hpottierSW"
-    control.vm.network "private_network", ip: "192.168.42.111"
-    control.vm.provider "virtualbox" do |v|
-      v.customize ["modifyvm", :id, "--name", "hpottierSW"]
-      v.memory = 1024
-      v.cpus = 1
-    end
+	#Configure Worker
+	config.vm.define "hpottierSW" do |control|
+		control.vm.hostname = "hpottierSW"
+		control.vm.network "private_network", ip: "192.168.42.111"
+		control.vm.provider "virtualbox" do |v|
+			v.customize ["modifyvm", :id, "--name", "hpottierSW"]
+			v.memory = 1024
+			v.cpus = 1
+		end
 
-    #Execute shell commands to configure worker
-    control.vm.provision "shell", inline: <<-SHELL
-                         curl -sfL https://get.k3s.io |
-                              sh -s - agent \
-                                      --node-ip 192.168.42.111 \
-                                      --flannel-iface=eth1 \
-                                      --server "https://192.168.42.110:6443" \
-                                      --token-file /vagrant/node-token
-                         SHELL
-  end
+		#Execute shell commands to configure worker
+		control.vm.provision "shell", inline: <<-SHELL
+			curl -sfL https://get.k3s.io |
+			sh -s - agent \
+					--node-ip 192.168.42.111 \
+					--flannel-iface=eth1 \
+					--server "https://192.168.42.110:6443" \
+					--token-file /vagrant/node-token
+			SHELL
+	end
 end
