@@ -6,7 +6,7 @@
 #    By: hpottier <hpottier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/20 17:10:29 by hpottier          #+#    #+#              #
-#    Updated: 2022/07/21 16:11:17 by hpottier         ###   ########.fr        #
+#    Updated: 2022/07/21 16:31:03 by hpottier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,7 @@ Vagrant.configure(2) do |config|
 			sudo systemctl enable --now docker
 			/vagrant/kubectlInstall.sh
 			sudo yum install -y kubectl
-			curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+			/vagrant/k3dinstall.sh
 			SHELL
 	end
 end
