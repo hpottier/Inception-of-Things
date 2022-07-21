@@ -6,7 +6,7 @@
 #    By: hpottier <hpottier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/20 17:10:29 by hpottier          #+#    #+#              #
-#    Updated: 2022/07/21 16:31:03 by hpottier         ###   ########.fr        #
+#    Updated: 2022/07/21 18:20:55 by hpottier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,14 +24,6 @@ Vagrant.configure(2) do |config|
 			v.memory = 8192
 			v.cpus = 2
 		end
-		control.vm.provision "shell", inline: <<~SHELL
-			sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-			sudo yum makecache
-			sudo yum install -y docker-ce docker-ce-cli containerd.io
-			sudo systemctl enable --now docker
-			/vagrant/kubectlInstall.sh
-			sudo yum install -y kubectl
-			/vagrant/k3dinstall.sh
-			SHELL
+		config.vm.provision "shell", path: "installation.sh", env: {"USER" => "vagrant", "PATH" => "$PATH:/usr/local/bin"}
 	end
 end
