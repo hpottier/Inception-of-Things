@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wil42-playground
+spec:
+  destination:
+    namespace: dev
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: wil42-playground
+    repoURL: 'https://github.com/hpottier/hpottier-Inception-of-Things-test-app.git'
+    targetRevision: HEAD
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

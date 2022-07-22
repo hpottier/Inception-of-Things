@@ -6,13 +6,15 @@
 #    By: hpottier <hpottier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/20 17:10:29 by hpottier          #+#    #+#              #
-#    Updated: 2022/07/22 18:44:59 by hpottier         ###   ########.fr        #
+#    Updated: 2022/07/22 22:08:51 by hpottier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 Vagrant.configure(2) do |config|
 	config.vm.box = "generic/centos8s"
 	config.vm.box_url = "https://app.vagrantup.com/generic/boxes/centos8s/versions/4.1.0/providers/virtualbox.box"
+	config.vm.network "forwarded_port", guest: 8080, host: 8080
+	config.vm.network "forwarded_port", guest: 8888, host: 8888
 	config.vm.synced_folder ".", "/vagrant"
 	config.vm.provision "shell", privileged: true, inline: "systemctl disable firewalld --now"
 
@@ -21,7 +23,7 @@ Vagrant.configure(2) do |config|
 		control.vm.network "private_network", ip: "192.168.42.110"
 		control.vm.provider "virtualbox" do |v|
 			v.customize ["modifyvm", :id, "--name", "part3vm"]
-			v.memory = 4096
+			v.memory = 1024
 			v.cpus = 2
 		end
 		config.vm.provision "shell", path: "installation.sh", env: {"USER" => "vagrant", "PATH" => "$PATH:/usr/local/bin"}
