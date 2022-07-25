@@ -25,11 +25,5 @@ kubectl apply -f wil42-playground.yaml -n argocd
 echo -e "\nARGO CD PASSWORD, CONNECT AS 'admin'"
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 
-echo -e "\nWAITING FOR APP DEPLOYMENT TO BE AVAILABLE"
-kubectl wait --for=condition=available deployment --all -n dev --timeout=-1s
-
-echo -e "\nWAITING FOR APP POD TO BE READY"
-kubectl wait --for=condition=ready pods --all -n dev --timeout=-1s
-
-echo -e "\nAPP SERVER PORT FORWARDING"
-kubectl port-forward --address 0.0.0.0 svc/wil42-playground -n dev 8888:8888 2>&1 > /dev/null &
+# echo -e "\nAPP SERVER PORT FORWARDING"
+# kubectl port-forward --address 0.0.0.0 svc/wil42-playground -n dev 8888:8888 2>&1 > /dev/null &
