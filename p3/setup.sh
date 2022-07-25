@@ -26,4 +26,4 @@ echo -e "\nARGO CD PASSWORD, CONNECT AS 'admin'"
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 
 # echo -e "\nAPP SERVER PORT FORWARDING"
-# kubectl port-forward --address 0.0.0.0 svc/wil42-playground -n dev 8888:8888 2>&1 > /dev/null &
+# kubectl port-forward --address 0.0.0.0 svc/wil42-playground -n dev 8888:8888
