@@ -25,5 +25,5 @@ kubectl apply -f wil42-playground.yaml -n argocd
 echo -e "\nARGO CD PASSWORD, CONNECT AS 'admin'"
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 
-echo -e "\nONCE THE APP IS SYNCHRONIZED USE THIS COMMAND TO ACCESS IT :"
+echo -e "\nONCE THE APP IS SYNCHRONIZED YOU CAN USE THIS COMMAND TO ACCESS IT :"
 echo -e "	kubectl port-forward --address 0.0.0.0 svc/wil42-playground -n dev 8888:8888\n"
